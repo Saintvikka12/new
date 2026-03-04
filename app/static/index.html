@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creator AI Studio</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background: #0f1220; color: #e8ebff; }
+      .container { max-width: 1000px; margin: 0 auto; padding: 24px; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+      .card { background: #171b2f; border-radius: 14px; padding: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+      textarea, input, button { width: 100%; margin-top: 8px; border-radius: 8px; border: 1px solid #323a62; background: #0f1220; color: #e8ebff; padding: 10px; }
+      button { cursor: pointer; background: #4f6bff; border: none; font-weight: 700; }
+      .output { margin-top: 12px; white-space: pre-wrap; background: #10142a; padding: 10px; border-radius: 10px; }
+      small { color: #9aa4d5; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Creator AI Studio</h1>
+      <small>Chat assistant + song idea and audio generator prototype.</small>
+      <div class="grid">
+        <section class="card">
+          <h2>Chatbot</h2>
+          <textarea id="chatInput" rows="5" placeholder="Ask anything..."></textarea>
+          <button onclick="sendChat()">Generate Response</button>
+          <div id="chatOutput" class="output"></div>
+        </section>
+
+        <section class="card">
+          <h2>Song Generator</h2>
+          <input id="genre" placeholder="Genre (e.g. pop, edm, rock)" value="pop" />
+          <input id="mood" placeholder="Mood (e.g. uplifting, dark, dreamy)" value="uplifting" />
+          <input id="theme" placeholder="Theme (e.g. freedom, love, hope)" value="hope" />
+          <button onclick="generateSong()">Generate Song</button>
+          <div id="lyrics" class="output"></div>
+          <audio id="audio" controls style="width:100%; margin-top:10px;"></audio>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      async function sendChat() {
+        const message = document.getElementById('chatInput').value;
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message})
+        });
+        const data = await res.json();
+        document.getElementById('chatOutput').textContent = data.response;
+      }
+
+      async function generateSong() {
+        const genre = document.getElementById('genre').value;
+        const mood = document.getElementById('mood').value;
+        const theme = document.getElementById('theme').value;
+
+        const res = await fetch('/api/music', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({genre, mood, theme})
+        });
+        const data = await res.json();
+        document.getElementById('lyrics').textContent = data.lyrics;
+        document.getElementById('audio').src = data.audio_url;
+      }
+    </script>
+  </body>
+</html>
